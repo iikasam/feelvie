@@ -175,11 +175,6 @@ export default {
     this.recommendList = recommend.data.results;
     this.recommend_photo = this.recommendList.map(key => key.poster_path)
 
-    // 비슷한 작품
-    const similar = await movieApi.similar(this.type, this.movieDetail.id);
-    this.similarList = similar.data.results
-    this.similar_photo = this.similarList.map(key => key.poster_path)
-
     // 소셜
     const social = await movieApi.social(this.type, this.movieDetail.id);
     this.facebookLink = social.data.facebook_id

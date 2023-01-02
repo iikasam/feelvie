@@ -26,7 +26,7 @@
                         </li>
                     </ul>
                 </div>
-                
+
                 <div class="profile_desc">
                     <dl>
                         <dt>생년월일</dt>
@@ -37,40 +37,46 @@
                         <dd>{{ (personDetail.gender == 2) ? '남자' : '여자' }}</dd>
                     </dl>
                 </div>
+
                 <!-- 이번 주 가장 많이 찾아 본 컨텐츠 -->
                 <div class="title">
                     <h2>유명 작품</h2>
                 </div>
+
                 <ItemList :movieList="knownWork" :type="type" :title="title" :photo="knownWork_photo"></ItemList>
-                   <!-- 작품 리스트 -->
-                    <div class="work">
-                        <div class="work_top">
-                            <h3>필모그래피</h3>
-                            <ul class="type_list">
-                                <li>
-                                    <button type="button" class="active" @click="ganreTab(this.movieList)">영화</button>
-                                </li>
-                                <li>
-                                    <button type="button" @click="ganreTab(this.tvList)">TV</button>
-                                </li>
-                            </ul>
-                        </div>
-    
-                        <ul class="work_list">
-                            <template v-for="work in movieList" :key="work.id">
-                                <li v-if="work.title || work.character && work.name" @click="goDetail(work.media_type, work.id)">
-                                    <p class="tit">
-                                        {{ work.name }}
-                                        {{ work.title }}
-                                    </p>
-                                    <span class="char">
-                                        {{ work.character }} 역
-                                    </span>
-                                </li>
-                            </template>
-    
+
+
+                <!-- 작품 리스트 -->
+                <div class="work">
+                    <div class="work_top">
+                        <h3>필모그래피</h3>
+                        <ul class="type_list">
+                            <li>
+                                <button type="button" :class="{active : activatedTarget=='a'}" @click="ganreTab(this.movieList, 'movie', 'a')">영화</button>
+                            </li>
+                            <li>
+                                <button type="button" :class="{active : activatedTarget=='b'}" @click="ganreTab(this.tvList, 'tv', 'b')">TV</button>
+                            </li>
                         </ul>
                     </div>
+
+                    <ul class="work_list">
+                        <template v-for="work in filmoList" :key="work.id">
+                            <li v-if="work.title || work.character && work.name"
+                                @click="goDetail(list_type, work.id)">
+                                <p class="tit">
+                                
+                                    {{ work.name }}
+                                    {{ work.title }}
+                                </p>
+                                <span class="char">
+                                    {{ work.character }} 역
+                                </span>
+                            </li>
+                        </template>
+
+                    </ul>
+                </div>
             </div>
         </section>
     </div>
@@ -87,37 +93,37 @@ export default {
             personDetail: {},
             personWork: {},
             personSocial: {},
+            movieList: [],
+            filmoList: [],
+            tvList: [],
+            list_type: 'movie',
+            knownWork_photo: '',
             facebookLink: {},
             twitterLink: {},
             instagramLink: {},
-            movieList: [],
-            tvList: [],
-            personTv: [],
-            gender: '남자',
-            test: [],
-            list_type: '',
-            knownWork_photo:'',
-            title: '가장 평점이 높은 작품',
-            type:'movie'
+            activatedTarget: 'a'
         };
     },
     methods: {
-         // 포스터
-         image(img) {
+        // 포스터
+        image(img) {
             return `https://image.tmdb.org/t/p/w300/${img}`
         },
         // 영화상세
         goDetail(type, id) {
             this.$router.push(`/${type}/${id}`);
         },
-        async ganreTab(id) {
-            this.list_type = id;
+        async ganreTab(id, type, tag) {
+            this.filmoList = id;
+            this.list_type = type;
+            this.activatedTarget = tag;
+            console.log(this.filmoList)
         }
     },
     async mounted() {
         // 인물 ID값에 따른 정보
         const { id } = this.$route.params;
-        
+
         // 인물 정보
         const personDetail = await movieApi.personDetail(id);
         this.personDetail = personDetail.data;
@@ -127,35 +133,32 @@ export default {
         this.personWork = personWork.data;
 
         // 인기있는 작품 (정렬 후)
-        const knownWork =  [...this.personWork.cast].sort(function(a, b) {return b.vote_average - a.vote_average}).slice(0, 10);
+        const knownWork = [...this.personWork.cast].sort(function (a, b) { return b.vote_average - a.vote_average }).slice(0, 10);
         this.knownWork = knownWork
         this.knownWork_photo = this.knownWork.map(key => key.poster_path)
-        console.log(this.knownWork)
-
-        // 정렬하기 전 
 
         // Tv
         const personTv = await movieApi.personTv(id);
         this.personTv = personTv.data;
 
         // 영화 날짜순으로 정렬
-        const movieList = this.personWork.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-        this.movieList = movieList
-
+        this.movieList = this.personWork.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+         
+        this.filmoList = this.movieList
 
         // Tv 날짜순으로 정렬
-        const tvList = this.personTv.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-        this.tvList = tvList
+        this.tvList = this.personTv.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
 
         // 소셜
         const personSocial = await movieApi.personSocial(id);
         this.facebookLink = personSocial.data.facebook_id
         this.twitterLink = personSocial.data.twitter_id
-        this.instagramLink = personSocial.data.instagram_id
+        this.instagramLink = personSocial.data.instagram_id;
+        
     },
     components: {
-    ItemList
-  }
+        ItemList
+    }
 }
 </script>
 

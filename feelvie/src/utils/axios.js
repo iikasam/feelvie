@@ -46,7 +46,7 @@ export const movieApi = {
   mediaImages : (movie_id) => request.get(`movie/${movie_id}/images?&language=en-US`),
 
   // 인물
-  personWork: (person_id) => request.get(`person/${person_id}/combined_credits`),
+  personWork: (person_id) => request.get(`person/${person_id}/movie_credits`),
   personTv: (person_id) => request.get(`person/${person_id}/tv_credits`),
   personSocial: (person_id) => request.get(`person/${person_id}/external_ids`),
 

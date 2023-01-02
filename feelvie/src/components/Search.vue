@@ -15,13 +15,12 @@
             검색결과가 없습니다.
         </div>
 
-
         <ul class="search_list" v-if="movieList">
             <li v-for="item in movieList" :key="item.id" @click="goDetail(item.media_type, item.id)" class="list_card">
                 <picture>
                     <img :src="image(item.poster_path)" alt="">
                 </picture>
-                <p class="tit">심 {{ this.media_type == "movie" ? item.title : item.name }}</p>
+                <p class="tit">{{ this.media_type == "movie" ? item.title : item.name }}</p>
                 <p class="tit" v-if="this.movieListName == searchResult">{{ searchResult }}</p>
             </li>
         </ul>
@@ -39,8 +38,7 @@ export default {
             movieList: '',
             images: ['image_none.png'],
             searchResult: '',
-            searchNone: false,
-            test: ''
+            searchNone: false
         };
     },
     methods: {
@@ -55,10 +53,9 @@ export default {
             this.search_photo = this.movieList.map(key => key.poster_path);
             // 검색결과가 없을 때
             this.searchNone = this.movieList.length === 0 ? true : false;
-
             this.movieListName = this.movieList.map(key => key.title)
         }, 100),
-
+        // 이미지
         image(img) {
             if (img == undefined) {
                 // 이미지 없을 때
@@ -67,7 +64,7 @@ export default {
                 return `https://image.tmdb.org/t/p/w300/${img}`
             }
         },
-
+        // 클릭 시 상세페이지로
         goDetail(type, id) {
             this.$router.push(`/${type}/${id}`);
         },
