@@ -3,7 +3,7 @@
   <section class="detail_container" 
   :style="{ backgroundImage: 'url( https://image.tmdb.org/t/p/w1920_and_h800_multi_faces/' + this.backGround + ')' }">
     <div class="detail_info">
-      <h1>
+      <h1 :class="{ skeleton : isLoading }">
         {{ this.type ==  "movie" ? movieDetail.title : movieDetail.name }}
       </h1>
       <div class="meta">
@@ -11,8 +11,8 @@
           {{ list.name }}
         </span>
       </div>
-      <div class="comment">
-        <p class="quotes">{{ movieDetail.tagline }}</p>
+      <div class="comment" :class="{ skeleton : isLoading }">
+        <p class="quotes" v-if="movieDetail.tagline">{{ movieDetail.tagline }}</p>
         <p class="intro">{{ movieDetail.overview }}</p>
       </div>
     </div>
@@ -34,7 +34,7 @@
           </a>
         </li>
       </ul>
-      <picture>
+      <picture :class="{ skeleton : isLoading }">
         <img :src="image(movieDetail.poster_path)" alt="Image 2">
       </picture>
     </div>
@@ -48,7 +48,6 @@
       <swiper-slide class="person_card" v-for="person in personList" :key="person.id" @click="goPeronDetail(person.id)">
         <picture>
           <img :src="profile(person.profile_path)" alt="Image 2">
-
         </picture>
         {{ person.original_name }}
       </swiper-slide>
@@ -132,21 +131,30 @@ export default {
       modal: false,
       img : '',
       width:'',
-      height:''
+      height:'',
+      images: ['image_none.png'],
+      isLoading: true,
     };
   },
   methods: {
     image(img) {
       return `https://image.tmdb.org/t/p/w400/${img}`
     },
+    // 이미지
     profile(img) {
-      return `https://image.tmdb.org/t/p/w185/${img}`
-    },
+            if (img == undefined) {
+                // 이미지 없을 때
+                return require(`@/assets/${this.images}`)
+            } else {
+                return `https://image.tmdb.org/t/p/w185/${img}`
+            }
+        },
     goPeronDetail(id) {
       this.$router.push(`/person/${id}`);
     }
   },
-  async mounted() {
+  async created() {	
+    
     // 영화 ID값에 따른 정보
     const { type, id } = this.$route.params;
     const { data } = await movieApi.movieDetail(type, id);
@@ -160,6 +168,7 @@ export default {
     // 등장인물
     const person = await movieApi.person(this.type, this.movieDetail.id);
     this.personList = person.data.cast.splice(0, 10);
+    console.log(this.personList)
 
     // 관련 이미지
     const image = await movieApi.image(this.type, this.movieDetail.id);
@@ -180,6 +189,11 @@ export default {
     this.facebookLink = social.data.facebook_id
     this.twitterLink = social.data.twitter_id
     this.instagramLink = social.data.instagram_id
+
+    this.isLoading = false
+  },
+  async mounted() {
+    this.isLoading = true
   },
   components: {
     Swiper,
@@ -236,6 +250,9 @@ export default {
 .media_container .media_list.video .swiper-slide iframe {width:100%}
 .media_container .media_list.video .swiper-slide a {display:block;margin-top:0.938rem;width:100%;font-size:1.125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} 
 
+.skeleton {border-radius:4px;background:#f4f6fa}
+.detail_container .detail_info .comment.skeleton {width:100px;height:100px;background:#f4f6fa}
+.detail_container .detail_poster picture.skeleton {margin-left:1.875rem;width:25rem;background:#f4f6fa}
 
 @media screen and (max-width: 768px) {
   .detail_container {flex-direction: row-reverse;flex-wrap:wrap-reverse;padding-bottom:0}

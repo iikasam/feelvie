@@ -41,7 +41,6 @@ export default {
         window.addEventListener('scroll', this.updateScroll);
     },
 }
-
 </script>
 
 <style>

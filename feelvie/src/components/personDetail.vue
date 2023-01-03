@@ -43,7 +43,7 @@
                     <h2>유명 작품</h2>
                 </div>
 
-                <ItemList :movieList="knownWork" :type="type" :title="title" :photo="knownWork_photo"></ItemList>
+                <ItemList :movieList="knownWork" :type="list_type" :title="title" :photo="knownWork_photo"></ItemList>
 
 
                 <!-- 작품 리스트 -->
@@ -59,17 +59,15 @@
                             </li>
                         </ul>
                     </div>
-
+                    
                     <ul class="work_list">
                         <template v-for="work in filmoList" :key="work.id">
-                            <li v-if="work.title || work.character && work.name"
-                                @click="goDetail(list_type, work.id)">
+                            <li v-if="work.title || work.character && work.name" @click="goDetail(list_type, work.id)">
+                                <span class="date">{{ work.release_date == null ? work.first_air_date.substr(0, 4) : work.release_date.substr(0, 4) }}</span>
                                 <p class="tit">
-                                
-                                    {{ work.name }}
-                                    {{ work.title }}
+                                    {{  work.name == null ? work.title : work.name }}
                                 </p>
-                                <span class="char">
+                                <span class="char" v-if="work.character">
                                     {{ work.character }} 역
                                 </span>
                             </li>
@@ -137,17 +135,15 @@ export default {
         this.knownWork = knownWork
         this.knownWork_photo = this.knownWork.map(key => key.poster_path)
 
-        // Tv
-        const personTv = await movieApi.personTv(id);
-        this.personTv = personTv.data;
-
         // 영화 날짜순으로 정렬
         this.movieList = this.personWork.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-         
-        this.filmoList = this.movieList
+        this.filmoList = this.movieList;
+        console.log(this.filmoList)
 
         // Tv 날짜순으로 정렬
-        this.tvList = this.personTv.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
+        const personTv = await movieApi.personTv(id);
+        this.tvList = personTv.data.cast.sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
+        console.log(this.tvList)
 
         // 소셜
         const personSocial = await movieApi.personSocial(id);
@@ -185,6 +181,7 @@ export default {
 .work .work_list li{display:flex;align-items:center;font-size:1.25rem;cursor:pointer}
 .work .work_list li:hover .tit {color:#4876ef}
 .work .work_list li+li {margin-top:0.938rem}
+.work .work_list li .date {padding:2px 6px;margin-right:15px}
 .work .work_list li .char {max-width:30%;margin-left:auto;text-align:right}
 .work .work_list li p {max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .work_top {display:flex;align-items:center;margin-bottom:1.875rem}
