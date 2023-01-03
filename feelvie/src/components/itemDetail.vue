@@ -1,23 +1,23 @@
 <template>
   <!-- 상단 -->
-  <section class="detail_container" 
-  :style="{ backgroundImage: 'url( https://image.tmdb.org/t/p/w1920_and_h800_multi_faces/' + this.backGround + ')' }">
+  <section class="detail_container"
+    :style="{ backgroundImage: 'url( https://image.tmdb.org/t/p/w1920_and_h800_multi_faces/' + this.backGround + ')' }">
     <div class="detail_info">
-      <h1 :class="{ skeleton : isLoading }">
-        {{ this.type ==  "movie" ? movieDetail.title : movieDetail.name }}
+      <h1 :class="{ skeleton: isLoading }">
+        {{ this.type == "movie" ? movieDetail.title : movieDetail.name }}
       </h1>
       <div class="meta">
         <span class="txt" v-for="list in movieDetail.genres" :key="list.id">
           {{ list.name }}
         </span>
       </div>
-      <div class="comment" :class="{ skeleton : isLoading }">
+      <div class="comment" :class="{ skeleton: isLoading }">
         <p class="quotes" v-if="movieDetail.tagline">{{ movieDetail.tagline }}</p>
         <p class="intro">{{ movieDetail.overview }}</p>
       </div>
     </div>
     <div class="detail_poster">
-      <ul class="social_links">
+      <ul class="social_links" :class="{ skeleton: isLoading }">
         <li v-if="this.facebookLink">
           <a :href="`https://facebook.com/${this.facebookLink}`" class="facebook" target="_blank">
             <span class="blind">페이스북</span>
@@ -34,7 +34,7 @@
           </a>
         </li>
       </ul>
-      <picture :class="{ skeleton : isLoading }">
+      <picture :class="{ skeleton: isLoading }">
         <img :src="image(movieDetail.poster_path)" alt="Image 2">
       </picture>
     </div>
@@ -58,47 +58,48 @@
 
     <div class="media_container">
       <div class="media_top">
-      <h3 class="tit">미디어</h3>
-      <!-- 탭 영역 -->
-      <ul class="media_tab">
-        <li v-for="(tab, index) in tabList" :key="index" :class="{ active: currentTab === index }"> 
-          <button @click.prevent="currentTab = index">{{ tab }} </button>
-        </li>
-      </ul>
-    </div>
-    <!-- 미디어 1 -->
-    <div v-show="currentTab == 0" class="media_list">
-      <swiper :slidesPerView="'auto'" class="mySwiper" v-if="imageList.posters">
-        <swiper-slide v-for="backdrops in imageList.posters" :key="backdrops.id" @click="modal = true, img = backdrops.file_path, width= backdrops.width, height=backdrops.height">
-          <img :src="profile(backdrops.file_path)" alt="Image 2">
-        </swiper-slide>
-      </swiper>
+        <h3 class="tit">미디어</h3>
+        <!-- 탭 영역 -->
+        <ul class="media_tab">
+          <li v-for="(tab, index) in tabList" :key="index" :class="{ active: currentTab === index }">
+            <button @click.prevent="currentTab = index">{{ tab }} </button>
+          </li>
+        </ul>
+      </div>
+      <!-- 미디어 1 -->
+      <div v-show="currentTab == 0" class="media_list">
+        <swiper :slidesPerView="'auto'" class="mySwiper" v-if="imageList.posters">
+          <swiper-slide v-for="backdrops in imageList.posters" :key="backdrops.id"
+            @click="modal = true, img = backdrops.file_path, width = backdrops.width, height = backdrops.height">
+            <img :src="profile(backdrops.file_path)" alt="Image 2">
+          </swiper-slide>
+        </swiper>
+      </div>
+
+      <!-- 미디어 2 -->
+      <div v-show="currentTab == 1" class="media_list bg">
+        <swiper :slidesPerView="'auto'" class="mySwiper" v-if="imageList.backdrops">
+          <swiper-slide v-for="backdrops in imageList.backdrops" :key="backdrops.id"
+            @click="modal = true, img = backdrops.file_path, width = backdrops.width, height = backdrops.height">
+            <img :src="profile(backdrops.file_path)" alt="Image 2">
+          </swiper-slide>
+        </swiper>
+      </div>
+      <!-- 미디어 3 -->
+      <div v-show="currentTab == 2" class="media_list video">
+        <swiper :slidesPerView="'auto'" class="mySwiper" v-if="videoLink">
+          <swiper-slide v-for="video in videoLink" :key="video.id">
+
+            <iframe :src="`https://youtube.com/embed/${video.key}`" title="YouTube video player" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+            <a :href="`https://youtube.com/embed/${video.key}`" style="color:#fff">
+              {{ video.name }} </a>
+          </swiper-slide>
+        </swiper>
+      </div>
     </div>
 
-    <!-- 미디어 2 -->
-    <div v-show="currentTab == 1" class="media_list bg">
-      <swiper :slidesPerView="'auto'" class="mySwiper" v-if="imageList.backdrops">
-        <swiper-slide v-for="backdrops in imageList.backdrops" :key="backdrops.id"  @click="modal = true, img = backdrops.file_path, width= backdrops.width, height=backdrops.height">
-          <img :src="profile(backdrops.file_path)" alt="Image 2">
-        </swiper-slide>
-      </swiper>
-    </div>
-    <!-- 미디어 3 -->
-    <div v-show="currentTab == 2" class="media_list video">
-      <swiper :slidesPerView="'auto'" class="mySwiper" v-if="videoLink">
-        <swiper-slide v-for="video in videoLink" :key="video.id">
-
-          <iframe :src="`https://youtube.com/embed/${video.key}`" title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-          <a :href="`https://youtube.com/embed/${video.key}`" style="color:#fff">
-            {{ video.name }} </a>
-        </swiper-slide>
-      </swiper>
-    </div>
-    </div>
-  
     <div class="title">
       <h2>추천 작품</h2>
     </div>
@@ -106,7 +107,7 @@
   </div>
 
   <bgModal v-if="modal" @close="modal = false" :img="img" :width="width" :height="height"></bgModal>
-  
+
 </template>
 
 <script>
@@ -120,20 +121,26 @@ export default {
   name: 'ItemDetail_',
   data() {
     return {
+      backGround: '',
       movieDetail: {},
       imageList: [],
       currentTab: 0,
       tabList: ['포스터', '배경', '동영상'],
       title: ['추천 작품들', '이 영화와 비슷한 작품들'],
+      modal: false,
+      img: '',
+      width: '',
+      height: '',
+      images: ['image_none.png'],
+      isLoading: true,
+      recommend_photo: '',
+      recommendList: '',
+      personList: '',
+      videoLink: '',
+      type: '',
       facebookLink: '',
       twitterLink: '',
       instagramLink: '',
-      modal: false,
-      img : '',
-      width:'',
-      height:'',
-      images: ['image_none.png'],
-      isLoading: true,
     };
   },
   methods: {
@@ -142,22 +149,24 @@ export default {
     },
     // 이미지
     profile(img) {
-            if (img == undefined) {
-                // 이미지 없을 때
-                return require(`@/assets/${this.images}`)
-            } else {
-                return `https://image.tmdb.org/t/p/w185/${img}`
-            }
-        },
+      if (img == undefined) {
+        // 이미지 없을 때
+        return require(`@/assets/${this.images}`)
+      } else {
+        return `https://image.tmdb.org/t/p/w185/${img}`
+      }
+    },
     goPeronDetail(id) {
       this.$router.push(`/person/${id}`);
     }
   },
-  async created() {	
+  async created() {
+    
     
     // 영화 ID값에 따른 정보
     const { type, id } = this.$route.params;
     const { data } = await movieApi.movieDetail(type, id);
+    this.isLoading = false
     this.movieDetail = data;
     // movie or tv
     this.type = type
@@ -168,12 +177,11 @@ export default {
     // 등장인물
     const person = await movieApi.person(this.type, this.movieDetail.id);
     this.personList = person.data.cast.splice(0, 10);
-    console.log(this.personList)
 
     // 관련 이미지
     const image = await movieApi.image(this.type, this.movieDetail.id);
     this.imageList = image.data
-    console.log(this.imageList)
+
 
     // 관련 동영상
     const video = await movieApi.video(this.type, this.movieDetail.id);
@@ -190,10 +198,10 @@ export default {
     this.twitterLink = social.data.twitter_id
     this.instagramLink = social.data.instagram_id
 
-    this.isLoading = false
+
+    
   },
-  async mounted() {
-    this.isLoading = true
+  mounted() {
   },
   components: {
     Swiper,
@@ -204,7 +212,7 @@ export default {
 }
 </script>
 <style>
-.detail_container {position: relative;display: flex;padding:9.375rem 4.375rem 4.375rem;color: #fff;overflow:hidden;background-size:cover;background-position:center}
+.detail_container {position: relative;display: flex;height:44.688rem;padding:9.375rem 4.375rem 4.375rem;color: #fff;overflow:hidden;background-size:cover;background-position:center}
 .detail_container .detail_info {position: relative;margin:3.125rem 3.125rem 0 0;width:100%;z-index:1}
 .detail_container .detail_info h1 {font-size:3.25rem}
 .detail_container .detail_info .meta {display:flex;align-items:center;margin-top:2rem}
@@ -225,6 +233,7 @@ export default {
 .detail_container .detail_poster .social_links li a.facebook {background: url(./../assets/icon_facebook.png) center / 100% no-repeat}
 .detail_container .detail_poster .social_links li a.tritter {background: url(./../assets/icon_twitter.png) center / 100% no-repeat}
 .detail_container .detail_poster .social_links li a.instargram {background: url(./../assets/icon_instagram.png) center / 100% no-repeat}
+.detail_container .detail_poster .social_links.skeleton a {background:#fff}
 .detail_container::before {content: "";position: absolute;inset:-10rem;background-color: rgba(0, 0, 0, 0.5);}
 .detail_container::after {content: "";position: absolute;bottom:-2px;left:-1rem;right:-1rem;height:25rem;background-image:linear-gradient(to top, rgb(0, 0, 0), rgba(0, 0, 0, 0));}
 
@@ -250,9 +259,9 @@ export default {
 .media_container .media_list.video .swiper-slide iframe {width:100%}
 .media_container .media_list.video .swiper-slide a {display:block;margin-top:0.938rem;width:100%;font-size:1.125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} 
 
-.skeleton {border-radius:4px;background:#f4f6fa}
-.detail_container .detail_info .comment.skeleton {width:100px;height:100px;background:#f4f6fa}
-.detail_container .detail_poster picture.skeleton {margin-left:1.875rem;width:25rem;background:#f4f6fa}
+.detail_container .detail_info .comment.skeleton .quotes {width:500px;height:55px;border-radius:4px;background:#f4f6fa}
+.detail_container .detail_info .comment.skeleton .intro {margin-top:20px;width:1000px;height:55px;border-radius:4px;background:#f4f6fa}
+.detail_container .detail_poster picture.skeleton img {width:25rem;height:35.438rem;background:#f4f6fa}
 
 @media screen and (max-width: 768px) {
   .detail_container {flex-direction: row-reverse;flex-wrap:wrap-reverse;padding-bottom:0}
